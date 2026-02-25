@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId("role_id")->default(null);
+            $table->dropColumn('image_id');
         });
+        Schema::dropIfExists('images');
     }
 
     /**
@@ -21,8 +22,13 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('images', function (Blueprint $table) {
+            $table->id();
+            $table->string("url");
+            $table->timestamps();
+        });
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('role_id');
+            $table->foreignId('image_id');
         });
     }
 };

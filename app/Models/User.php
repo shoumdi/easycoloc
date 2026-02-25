@@ -19,7 +19,9 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'username',
+        'fname',
+        'lname',
         'email',
         'password',
     ];
@@ -50,5 +52,8 @@ class User extends Authenticatable
 
     public function role():BelongsTo{
         return $this->belongsTo(Role::class);
+    }
+    public function picture():BelongsTo{
+        return $this->belongsTo(Image::class);
     }
 }
