@@ -18,10 +18,10 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        $this->run([
-            Ro
-        ]);
-
+        Role::factory()
+            ->count(2)
+            ->sequence(['name'=>"Admin"],['name'=>'User'])
+            ->create();
 
     }
 }

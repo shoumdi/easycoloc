@@ -12,9 +12,9 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        // Role::factory()
-        //     ->count(2)
-        //     ->sequence(['name'=>"Admin"],['name'=>'User'])
-        //     ->create();
+        Role::factory()
+            ->count(2)
+            ->sequence(['name'=>"Admin"],['name'=>'User'])
+            ->create();
     }
 }

@@ -38,18 +38,18 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $role = Role::where('name', (!User::exists()) ? 'Admin' : 'User')->first();
-
+        $roleId = Role::where('name', (!User::exists()) ? 'Admin' : 'User')
+            ->pluck('id')
+            ->first(); 
         $user = User::create([
             'username' => $request->username,
             'fname' => $request->fname,
             'lname' => $request->lname,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role_id' => $roleId
         ]);
-
-        $user->role()->save($role);
-
+        
         event(new Registered($user));
 
         Auth::login($user);

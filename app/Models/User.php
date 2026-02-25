@@ -24,6 +24,7 @@ class User extends Authenticatable
         'lname',
         'email',
         'password',
+        'role_id'
     ];
 
     /**
@@ -52,8 +53,5 @@ class User extends Authenticatable
 
     public function role():BelongsTo{
         return $this->belongsTo(Role::class);
-    }
-    public function picture():BelongsTo{
-        return $this->belongsTo(Image::class);
     }
 }
