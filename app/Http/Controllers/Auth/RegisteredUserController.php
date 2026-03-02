@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Helpers\Base64;
 use App\Http\Controllers\Controller;
+use App\Models\Colocation;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\RegisterUserService;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Http\Client\Request as ClientRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,9 +22,11 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('auth.register');
+        $invit = $request->input('invit', '');
+        $invitee = json_decode(Base64::decode($invit));
+        return view('auth.register', compact('invitee', 'invit'));
     }
 
     /**
@@ -28,32 +34,18 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, RegisterUserService $service): RedirectResponse
     {
-        $request->validate([
-            'username' => ['required', 'string', 'max:255'],
-            'fname' => ['required', 'string', 'max:255'],
-            'lname' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
 
-        $roleId = Role::where('name', (!User::exists()) ? 'Admin' : 'User')
-            ->pluck('id')
-            ->first(); 
-        $user = User::create([
-            'username' => $request->username,
-            'fname' => $request->fname,
-            'lname' => $request->lname,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role_id' => $roleId
-        ]);
-        
-        event(new Registered($user));
-
-        Auth::login($user);
-
-        return redirect(route('dashboard', absolute: false));
+        $service->execute(
+            $request->validate([
+                'username' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+                'password' => ['required', 'confirmed', Rules\Password::defaults()],
+                'invitee' => ['string']
+            ]),
+            json_decode($request->invitee)
+        );
+        return redirect(route('index', absolute: false));
     }
 }
